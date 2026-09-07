@@ -1,0 +1,55 @@
+{
+  "common": {
+    "appName": "Nodo Business Search",
+    "loading": "Cargando…",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "language": "Idioma",
+    "theme": "Tema",
+    "themeDark": "Oscuro",
+    "themeLight": "Claro",
+    "signOut": "Cerrar sesión"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "search": "Buscar",
+    "leads": "Leads",
+    "settings": "Configuración"
+  },
+  "auth": {
+    "signInTitle": "Iniciar sesión",
+    "signInWithGoogle": "Ingresar con Google",
+    "unauthorizedTitle": "Acceso denegado",
+    "unauthorizedBody": "Tu cuenta de Google no está autorizada para usar esta herramienta."
+  },
+  "search": {
+    "title": "Búsqueda de negocios",
+    "queryPlaceholder": "ej: cafe in Ponsonby auckland",
+    "run": "Buscar",
+    "resultsFound": "{count, plural, =0 {Sin resultados} one {# resultado} other {# resultados}}",
+    "leadsCreated": "{count, plural, =0 {Sin leads nuevos} one {# lead nuevo} other {# leads nuevos}}"
+  },
+  "leads": {
+    "title": "Leads",
+    "empty": "Sin leads aún — ejecuta una búsqueda para comenzar.",
+    "columns": {
+      "name": "Nombre",
+      "category": "Categoría",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "status": "Estado",
+      "createdAt": "Capturado"
+    },
+    "export": "Exportar a Trello",
+    "selectAtLeastOne": "Selecciona al menos un lead."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "searchesTotal": "Búsquedas",
+    "leadsTotal": "Leads capturados",
+    "leadsExported": "Exportados a Trello",
+    "exportRate": "Tasa de export",
+    "topCategories": "Top categorías sin sitio web",
+    "recentSearches": "Búsquedas recientes"
+  }
+}

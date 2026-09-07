@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nodo Business Search
 
-## Getting Started
+Herramienta interna de prospección B2B para identificar negocios en Auckland que **no cuentan con sitio web**, capturarlos como leads y exportarlos al tablero de Trello de Nodo.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, TypeScript strict, Turbopack)
+- **Material UI v9** (theming dark/light con paleta Nodo)
+- **Auth.js v5** (Google OAuth con whitelist de emails)
+- **Prisma 6** + **Neon Postgres** (Vercel Marketplace)
+- **next-intl** (ES / EN)
+- **Google Places API (New)** — Text Search
+- **Trello REST API** — export de cards
+- Jest + RTL, ESLint, Prettier, Husky, lint-staged
+
+## Requisitos
+
+- Node.js 20+
+- npm 10+
+- Cuenta Vercel (Hobby)
+- Base de datos Postgres (Neon vía Vercel Marketplace)
+- Credenciales OAuth Google (Client ID + Secret)
+- API key de Google Cloud con **Places API (New)** habilitada
+- Trello: `TRELLO_API_KEY`, `TRELLO_TOKEN`, `TRELLO_BOARD_ID`, `TRELLO_LIST_ID`
+
+## Setup local
 
 ```bash
+npm install
+cp .env.example .env.local
+# Rellenar todas las variables en .env.local
+npm run prisma:migrate   # primera migración
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Comando                  | Uso                                             |
+| ------------------------ | ----------------------------------------------- |
+| `npm run dev`            | Servidor de desarrollo (Turbopack)              |
+| `npm run build`          | Build de producción (incluye `prisma generate`) |
+| `npm run start`          | Servidor productivo                             |
+| `npm run lint`           | ESLint                                          |
+| `npm run typecheck`      | TypeScript                                      |
+| `npm run format`         | Prettier write                                  |
+| `npm test`               | Jest                                            |
+| `npm run prisma:migrate` | Aplicar migraciones locales                     |
+| `npm run prisma:studio`  | Prisma Studio                                   |
 
-## Learn More
+## Estructura
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+├─ (auth)/signin/        # login con Google
+├─ (app)/                # rutas autenticadas
+│  ├─ dashboard/
+│  ├─ search/
+│  ├─ leads/
+│  └─ settings/
+└─ api/{auth,search,leads,leads/export,metrics}/
+components/               # UI (AppShell, SearchForm, LeadsTable, Dashboard, …)
+lib/                      # auth, prisma, google-places, trello, rate-limit, metrics
+prisma/schema.prisma      # User/Search/Lead/LeadExport + Auth.js
+theme/                    # paleta Nodo + tema MUI dark/light
+i18n/                     # config next-intl
+messages/                 # es.json / en.json
+proxy.ts                  # protección de rutas (Next 16)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Whitelist de acceso
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Sólo los emails listados en `AUTH_ALLOWED_EMAILS` (separados por coma) pueden iniciar sesión.
+Cualquier otro email es rechazado en el callback `signIn` de Auth.js.
 
-## Deploy on Vercel
+## Deploy en Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Crear proyecto Vercel apuntando al repo GitHub.
+2. Añadir integración **Neon** desde Vercel Marketplace (setea `DATABASE_URL` y `DIRECT_URL`).
+3. Setear el resto de env vars en Vercel (production + preview).
+4. Configurar dominio autorizado en Google OAuth Console.
+5. Restringir la API key de Google Places por HTTP referrer.
