@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
 import { LeadsTable, type LeadRow } from '@/components/LeadsTable';
+import type { WebsiteType } from '@/components/WebsiteChip';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,9 @@ export default async function LeadsPage() {
     address: l.address,
     phone: l.phone,
     category: l.category,
+    websiteType: l.websiteType as WebsiteType,
+    websiteUri: l.websiteUri,
+    socialHandle: l.socialHandle,
     status: l.status,
     createdAt: l.createdAt.toISOString(),
   }));

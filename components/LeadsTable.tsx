@@ -4,11 +4,17 @@ import { useMemo, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import { DataGrid, type GridColDef, type GridRowSelectionModel } from '@mui/x-data-grid';
 import { useTranslations } from 'next-intl';
 import { ExportDialog } from './ExportDialog';
+import { WebsiteChip, type WebsiteType } from './WebsiteChip';
 
 type LeadStatus = 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISCARDED' | 'EXPORTED';
 
@@ -19,6 +25,9 @@ export interface LeadRow {
   address: string | null;
   phone: string | null;
   category: string | null;
+  websiteType: WebsiteType;
+  websiteUri: string | null;
+  socialHandle: string | null;
   status: LeadStatus;
   createdAt: string;
 }
@@ -30,6 +39,18 @@ const statusColor: Record<LeadStatus, 'default' | 'primary' | 'success' | 'warni
   DISCARDED: 'error',
   EXPORTED: 'default',
 };
+
+const ACTIONABLE: WebsiteType[] = ['NONE', 'FACEBOOK', 'INSTAGRAM', 'WHATSAPP', 'LINKTREE'];
+const ALL_WEBSITE_TYPES: WebsiteType[] = [
+  'NONE',
+  'FACEBOOK',
+  'INSTAGRAM',
+  'WHATSAPP',
+  'LINKTREE',
+  'LINKEDIN',
+  'OTHER_SOCIAL',
+  'REAL',
+];
 
 interface LeadsTableProps {
   initialItems: LeadRow[];
@@ -45,6 +66,7 @@ export function LeadsTable({ initialItems }: LeadsTableProps) {
     ids: new Set(),
   });
   const [exportOpen, setExportOpen] = useState(false);
+  const [typeFilter, setTypeFilter] = useState<WebsiteType[]>(ACTIONABLE);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -61,10 +83,20 @@ export function LeadsTable({ initialItems }: LeadsTableProps) {
     }
   }, []);
 
+  const visibleRows = useMemo(
+    () => (typeFilter.length === 0 ? rows : rows.filter((r) => typeFilter.includes(r.websiteType))),
+    [rows, typeFilter],
+  );
+
   const selectedIds = useMemo(
     () => (selection.type === 'include' ? Array.from(selection.ids) : []),
     [selection],
   );
+
+  const handleFilterChange = (event: SelectChangeEvent<WebsiteType[]>) => {
+    const value = event.target.value;
+    setTypeFilter(typeof value === 'string' ? (value.split(',') as WebsiteType[]) : value);
+  };
 
   const columns: GridColDef<LeadRow>[] = [
     { field: 'name', headerName: t('columns.name'), flex: 1.5, minWidth: 180 },
@@ -74,6 +106,18 @@ export function LeadsTable({ initialItems }: LeadsTableProps) {
       flex: 1,
       minWidth: 140,
       renderCell: (params) => (params.value ? <Chip size="small" label={params.value} /> : null),
+    },
+    {
+      field: 'websiteType',
+      headerName: t('columns.web'),
+      minWidth: 180,
+      renderCell: (params) => (
+        <WebsiteChip
+          type={params.value as WebsiteType}
+          handle={params.row.socialHandle}
+          uri={params.row.websiteUri}
+        />
+      ),
     },
     { field: 'phone', headerName: t('columns.phone'), flex: 1, minWidth: 140 },
     { field: 'address', headerName: t('columns.address'), flex: 2, minWidth: 220 },
@@ -100,7 +144,28 @@ export function LeadsTable({ initialItems }: LeadsTableProps) {
   return (
     <Stack spacing={2}>
       {error && <Alert severity="error">{error}</Alert>}
-      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={2}
+        sx={{ alignItems: { sm: 'center' } }}
+      >
+        <FormControl size="small" sx={{ minWidth: 280 }}>
+          <InputLabel id="website-filter-label">{t('filterByWeb')}</InputLabel>
+          <Select
+            labelId="website-filter-label"
+            multiple
+            value={typeFilter}
+            onChange={handleFilterChange}
+            input={<OutlinedInput label={t('filterByWeb')} />}
+            renderValue={(selected) => `${(selected as WebsiteType[]).length} tipos`}
+          >
+            {ALL_WEBSITE_TYPES.map((wt) => (
+              <MenuItem key={wt} value={wt}>
+                {wt}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Button
           variant="contained"
           disabled={selectedIds.length === 0}
@@ -109,12 +174,14 @@ export function LeadsTable({ initialItems }: LeadsTableProps) {
           {t('export')} ({selectedIds.length})
         </Button>
         <Button variant="outlined" onClick={reload} disabled={loading}>
-          {loading ? '…' : 'Reload'}
+          {loading ? '…' : t('reload')}
         </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Chip label={t('visibleCount', { count: visibleRows.length })} />
       </Stack>
       <Box sx={{ height: 640, width: '100%' }}>
         <DataGrid
-          rows={rows}
+          rows={visibleRows}
           columns={columns}
           loading={loading}
           checkboxSelection

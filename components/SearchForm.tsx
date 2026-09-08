@@ -16,6 +16,7 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { useTranslations } from 'next-intl';
+import { WebsiteChip, type WebsiteType } from './WebsiteChip';
 
 interface Lead {
   id: string;
@@ -24,12 +25,15 @@ interface Lead {
   address?: string | null;
   phone?: string | null;
   category?: string | null;
+  websiteType: WebsiteType;
+  websiteUri?: string | null;
+  socialHandle?: string | null;
 }
 
 interface SearchResponse {
   searchId: string;
   totalResults: number;
-  leadsWithoutWebsite: number;
+  actionableLeads: number;
   leadsCreated: number;
   leads: Lead[];
 }
@@ -94,13 +98,12 @@ export function SearchForm() {
       {result && (
         <Paper sx={{ p: 3 }}>
           <Stack direction="row" spacing={2} sx={{ mb: 2, flexWrap: 'wrap' }}>
-            <Chip label={t('resultsFound', { count: result.leadsWithoutWebsite })} />
-            <Chip label={t('leadsCreated', { count: result.leadsCreated })} color="primary" />
+            <Chip label={t('totalResults', { count: result.totalResults })} />
+            <Chip label={t('actionable', { count: result.actionableLeads })} color="primary" />
+            <Chip label={t('leadsCreated', { count: result.leadsCreated })} color="secondary" />
           </Stack>
           {result.leads.length === 0 ? (
-            <Typography color="text.secondary">
-              No leads without a website in this search.
-            </Typography>
+            <Typography color="text.secondary">{t('noResults')}</Typography>
           ) : (
             <TableContainer>
               <Table size="small">
@@ -108,6 +111,7 @@ export function SearchForm() {
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell>Category</TableCell>
+                    <TableCell>Web</TableCell>
                     <TableCell>Phone</TableCell>
                     <TableCell>Address</TableCell>
                   </TableRow>
@@ -118,6 +122,13 @@ export function SearchForm() {
                       <TableCell>{lead.name}</TableCell>
                       <TableCell>
                         {lead.category && <Chip size="small" label={lead.category} />}
+                      </TableCell>
+                      <TableCell>
+                        <WebsiteChip
+                          type={lead.websiteType}
+                          handle={lead.socialHandle}
+                          uri={lead.websiteUri}
+                        />
                       </TableCell>
                       <TableCell>{lead.phone ?? '—'}</TableCell>
                       <TableCell>{lead.address ?? '—'}</TableCell>
@@ -131,10 +142,7 @@ export function SearchForm() {
       )}
 
       <Box sx={{ opacity: 0.7 }}>
-        <Typography variant="caption">
-          Tip: use queries like &ldquo;cafe in Ponsonby auckland&rdquo; or &ldquo;plumber in
-          Henderson auckland&rdquo;.
-        </Typography>
+        <Typography variant="caption">{t('tip')}</Typography>
       </Box>
     </Stack>
   );

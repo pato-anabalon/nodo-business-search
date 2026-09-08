@@ -3,6 +3,7 @@
     "appName": "Nodo Business Search",
     "loading": "Cargando…",
     "cancel": "Cancelar",
+    "close": "Cerrar",
     "save": "Guardar",
     "language": "Idioma",
     "theme": "Tema",
@@ -26,8 +27,11 @@
     "title": "Búsqueda de negocios",
     "queryPlaceholder": "ej: cafe in Ponsonby auckland",
     "run": "Buscar",
-    "resultsFound": "{count, plural, =0 {Sin resultados} one {# resultado} other {# resultados}}",
-    "leadsCreated": "{count, plural, =0 {Sin leads nuevos} one {# lead nuevo} other {# leads nuevos}}"
+    "totalResults": "{count, plural, =0 {Sin resultados} one {# resultado} other {# resultados}}",
+    "actionable": "{count, plural, =0 {0 accionables} one {# accionable} other {# accionables}}",
+    "leadsCreated": "{count, plural, =0 {0 nuevos} one {# lead nuevo} other {# leads nuevos}}",
+    "noResults": "Google no devolvió resultados.",
+    "tip": "Tip: consultas como \"cafe in Ponsonby auckland\" o \"plumber in Henderson auckland\" funcionan bien."
   },
   "leads": {
     "title": "Leads",
@@ -35,12 +39,18 @@
     "columns": {
       "name": "Nombre",
       "category": "Categoría",
+      "web": "Presencia web",
       "address": "Dirección",
       "phone": "Teléfono",
       "status": "Estado",
       "createdAt": "Capturado"
     },
     "export": "Exportar a Trello",
+    "reload": "Recargar",
+    "filterByWeb": "Filtro presencia web",
+    "visibleCount": "{count, plural, =0 {0 visibles} one {# visible} other {# visibles}}",
+    "exportConfirm": "Exportando {count, plural, one {# lead} other {# leads}} a Trello.",
+    "exportResult": "{ok} exitosos, {failed} fallidos.",
     "selectAtLeastOne": "Selecciona al menos un lead."
   },
   "dashboard": {

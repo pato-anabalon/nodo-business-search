@@ -3,6 +3,7 @@
     "appName": "Nodo Business Search",
     "loading": "Loading…",
     "cancel": "Cancel",
+    "close": "Close",
     "save": "Save",
     "language": "Language",
     "theme": "Theme",
@@ -26,8 +27,11 @@
     "title": "Business search",
     "queryPlaceholder": "e.g. cafe in Ponsonby auckland",
     "run": "Search",
-    "resultsFound": "{count, plural, =0 {No results} one {# result} other {# results}}",
-    "leadsCreated": "{count, plural, =0 {No new leads} one {# new lead} other {# new leads}}"
+    "totalResults": "{count, plural, =0 {No results} one {# result} other {# results}}",
+    "actionable": "{count, plural, =0 {0 actionable} one {# actionable} other {# actionable}}",
+    "leadsCreated": "{count, plural, =0 {0 new} one {# new lead} other {# new leads}}",
+    "noResults": "No places returned by Google.",
+    "tip": "Tip: queries like \"cafe in Ponsonby auckland\" or \"plumber in Henderson auckland\" work well."
   },
   "leads": {
     "title": "Leads",
@@ -35,12 +39,18 @@
     "columns": {
       "name": "Name",
       "category": "Category",
+      "web": "Web presence",
       "address": "Address",
       "phone": "Phone",
       "status": "Status",
       "createdAt": "Captured"
     },
     "export": "Export to Trello",
+    "reload": "Reload",
+    "filterByWeb": "Web presence filter",
+    "visibleCount": "{count, plural, =0 {0 visible} one {# visible} other {# visible}}",
+    "exportConfirm": "Exporting {count, plural, one {# lead} other {# leads}} to Trello.",
+    "exportResult": "{ok} succeeded, {failed} failed.",
     "selectAtLeastOne": "Select at least one lead."
   },
   "dashboard": {

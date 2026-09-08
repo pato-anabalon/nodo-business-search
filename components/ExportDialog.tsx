@@ -60,16 +60,20 @@ export function ExportDialog({ open, leadIds, onClose, onExported }: ExportDialo
     onClose();
   };
 
+  const isSuccess = result !== null && result.failed === 0;
+  const showExportButton = !isSuccess;
+  const closeLabel = isSuccess ? t('close') : t('cancel');
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{tLeads('export')}</DialogTitle>
       <DialogContent>
         <Stack spacing={2}>
-          <Typography>Exporting {leadIds.length} lead(s) to Trello.</Typography>
+          {!result && <Typography>{tLeads('exportConfirm', { count: leadIds.length })}</Typography>}
           {error && <Alert severity="error">{error}</Alert>}
           {result && (
             <Alert severity={result.failed === 0 ? 'success' : 'warning'}>
-              {result.ok} succeeded, {result.failed} failed.
+              {tLeads('exportResult', { ok: result.ok, failed: result.failed })}
               {result.errors.length > 0 && (
                 <ul>
                   {result.errors.slice(0, 3).map((e) => (
@@ -83,11 +87,17 @@ export function ExportDialog({ open, leadIds, onClose, onExported }: ExportDialo
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} disabled={loading}>
-          {t('cancel')}
+          {closeLabel}
         </Button>
-        <Button onClick={runExport} variant="contained" disabled={loading || leadIds.length === 0}>
-          {loading ? <CircularProgress size={20} /> : tLeads('export')}
-        </Button>
+        {showExportButton && (
+          <Button
+            onClick={runExport}
+            variant="contained"
+            disabled={loading || leadIds.length === 0}
+          >
+            {loading ? <CircularProgress size={20} /> : tLeads('export')}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

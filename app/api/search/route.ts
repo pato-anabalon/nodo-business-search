@@ -5,11 +5,12 @@ import { prisma } from '@/lib/prisma';
 import { rateLimit } from '@/lib/rate-limit';
 import {
   searchPlacesText,
-  hasNoWebsite,
+  classifyWebsite,
   pickCategory,
   pickPhone,
-  type PlaceResult,
+  type PlacesTextSearchResponse,
 } from '@/lib/google-places';
+import { WebsiteType } from '@prisma/client';
 
 const bodySchema = z.object({
   query: z.string().min(3).max(200),
@@ -39,20 +40,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_body' }, { status: 400 });
   }
 
-  let places: PlaceResult[];
+  let response: PlacesTextSearchResponse;
   try {
-    places = await searchPlacesText({ textQuery: payload.query });
+    response = await searchPlacesText({ textQuery: payload.query });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'places_error';
     return NextResponse.json({ error: 'places_error', message }, { status: 502 });
   }
 
-  const withoutWebsite = places.filter(hasNoWebsite);
+  const places = response.places ?? [];
   let leadsCreated = 0;
 
   const upserted = await Promise.all(
-    withoutWebsite.map(async (place) => {
+    places.map(async (place) => {
       const existing = await prisma.lead.findUnique({ where: { placeId: place.id } });
+      const classification = classifyWebsite(place.websiteUri);
       const lead = await prisma.lead.upsert({
         where: { placeId: place.id },
         create: {
@@ -64,8 +66,9 @@ export async function POST(request: Request) {
           types: place.types ?? [],
           lat: place.location?.latitude,
           lng: place.location?.longitude,
-          hasWebsite: false,
+          websiteType: classification.type,
           websiteUri: place.websiteUri,
+          socialHandle: classification.handle,
           rawJson: place as unknown as object,
         },
         update: {
@@ -76,7 +79,9 @@ export async function POST(request: Request) {
           types: place.types ?? [],
           lat: place.location?.latitude,
           lng: place.location?.longitude,
+          websiteType: classification.type,
           websiteUri: place.websiteUri,
+          socialHandle: classification.handle,
           rawJson: place as unknown as object,
         },
       });
@@ -91,6 +96,7 @@ export async function POST(request: Request) {
       query: payload.query,
       resultsCount: places.length,
       leadsCreated,
+      rawResponse: response as unknown as object,
     },
   });
 
@@ -104,10 +110,12 @@ export async function POST(request: Request) {
     });
   }
 
+  const actionable = upserted.filter((l) => l.websiteType !== WebsiteType.REAL).length;
+
   return NextResponse.json({
     searchId: search.id,
     totalResults: places.length,
-    leadsWithoutWebsite: withoutWebsite.length,
+    actionableLeads: actionable,
     leadsCreated,
     leads: upserted,
   });
